@@ -61,8 +61,7 @@ function multifarm_query_query_alter(Drupal\Core\Database\Query\AlterableInterfa
       if($table['table']=='asset_field_data'){
         $query->join('asset__farm', 'af', 'af.entity_id = asset_field_data.id');
         $query->condition('af.farm_target_id', $farmID);
-      } 
-      
+      }       
       if($table['table']=='users_field_data'){
         $query->condition('farm', $farmID);   
       }
