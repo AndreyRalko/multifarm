@@ -1,0 +1,70 @@
+<?php
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\Query\QueryInterface;
+use Drupal\user\Entity\User;
+use Drupal\Core\Session\AccountInterface;
+use Drupal\Core\Database\Database;
+
+/**
+ * Implements hook_preprocess_HOOK() for page templates.
+ */
+/* 
+function multifarm_query_preprocess_page(array &$variables) {
+  $route_match = \Drupal::routeMatch();
+  $current_route_name = $route_match->getRouteName();
+  //\Drupal::logger('multifarm_query')->notice($current_route_name);  
+}
+*/
+/**
+ * Implements hook_user_login().
+ */
+function multifarm_query_user_login(AccountInterface $account) {
+  // Ваш код, который будет выполняться при авторизации пользователя.
+
+  $current_user = \Drupal::currentUser();
+  $user_id = $current_user->id();
+
+  // Получаем соединение с базой данных.
+  $connection = Database::getConnection();
+
+  // Выполняем запрос к таблице user_field_data.
+  $query = $connection->select('users_field_data', 'u')
+    ->fields('u', ['farm'])
+    ->condition('u.uid', $user_id)
+    ->range(0, 1); // Ограничиваем результат одним значением.
+
+  $result = $query->execute()->fetchField();
+
+  if ($result !== false) {
+    // Значение поля farm для пользователя
+    $farm_value = $result;
+    \Drupal::service('session')->set('farmID', $farm_value);
+  } else {
+    //\Drupal::logger('multifarm_query')->notice('Пользователь с uid = 1 не найден или поле farm отсутствует.');
+  }
+}
+
+/**
+ * Implements hook_query_alter().
+ */
+function multifarm_query_query_alter(Drupal\Core\Database\Query\AlterableInterface $query) {
+  //\Drupal::logger('multifarm_query')->notice($query);
+  $route_match = \Drupal::routeMatch();
+  $current_route_name = $route_match->getRouteName();
+
+  $farmID = \Drupal::service('session')->get('farmID');
+  if($farmID!=''){
+    
+    $tables = $query->getTables();
+    
+    foreach($tables as $table){
+      if($table['table']=='asset_field_data'){
+        $query->join('asset__farm', 'af', 'af.entity_id = asset_field_data.id');
+        $query->condition('af.farm_target_id', $farmID);
+      } 
+      if($table['table']=='users_field_data'){
+        $query->condition('farm', $farmID);   
+      }
+    }    
+  }  
+}

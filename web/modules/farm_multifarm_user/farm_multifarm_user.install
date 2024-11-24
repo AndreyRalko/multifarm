@@ -1,0 +1,13 @@
+/**
+ * Implements hook_schema().
+ */
+function custom_module_schema() {
+  $schema['user_field_data']['fields']['farm'] = [
+    'description' => 'farm',
+    'type' => 'int',
+    'length' => 255,
+    'not null' => TRUE,
+  ];
+
+  return $schema;
+}

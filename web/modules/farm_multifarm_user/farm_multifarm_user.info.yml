@@ -1,0 +1,7 @@
+name: Multifarm_user
+description: Manage multiple farms users in farmOS.
+type: module
+package: farmOS Contrib
+core_version_requirement: ^10.2.2
+dependencies:
+  - drupal:taxonomy

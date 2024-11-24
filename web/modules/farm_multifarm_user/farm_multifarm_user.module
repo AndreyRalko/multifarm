@@ -1,0 +1,65 @@
+<?php
+use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\taxonomy\Entity\Vocabulary;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Database\Query\AlterableInterface;
+
+function farm_multifarm_user_entity_base_field_info(EntityTypeInterface $entity_type) {
+  $fields = [];
+
+  if ($entity_type->id() === 'user') {
+    $vocab_name = 'farm'; 
+
+    $terms = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadTree($vocab_name);
+    $options = [];
+    foreach ($terms as $term) {
+      $options[$term->tid] = $term->name;
+    }
+
+    $fields['farm'] = BaseFieldDefinition::create('list_string')
+      ->setLabel(t('farm'))
+      ->setDescription(t('farm for user'))
+      ->setSettings([
+        'allowed_values' => $options,
+      ])
+      ->setDisplayOptions('view', [
+        'label' => 'above',
+        'type' => 'string',
+        'weight' => -4,
+      ])
+      ->setDisplayOptions('form', [
+        'type' => 'options_select',
+        'weight' => -4,
+      ])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
+    return $fields;
+  }
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function farm_multifarm_user_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  if ($form_id === 'user_register_form' || $form_id === 'user_profile_form') {
+    $form['farm']['#access'] = \Drupal::currentUser()->hasPermission('administer users');
+  }
+}
+
+/**
+ * Implements hook_entity_presave().
+ */
+function farm_multifarm_user_presave(EntityInterface $entity) {
+  $field_taxonomy_select_value = $entity->get('farm')->getValue();
+
+  if (!empty($field_taxonomy_select_value[0]['target_id'])) {
+    $entity->set('farm', $field_taxonomy_select_value[0]['target_id']);
+  }
+}
+
+
+
+

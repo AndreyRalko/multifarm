@@ -1,0 +1,22 @@
+{
+    "require": {
+        "farmos/farmos-map": "*"
+    },
+    "repositories": {
+        "farmos-map": {
+            "type": "package",
+            "package": {
+                "name": "farmos/farmos-map",
+                "version": "2.2.2",
+                "type": "drupal-library",
+                "dist": {
+                  "url": "https://github.com/farmOS/farmOS-map/releases/download/v2.2.2/v2.2.2-dist.zip",
+                  "type": "zip"
+                },
+                "extra": {
+                  "installer-name": "farmOS-map"
+                }
+            }
+        }
+    }
+}

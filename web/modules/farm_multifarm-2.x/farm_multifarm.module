@@ -1,0 +1,34 @@
+<?php
+
+/**
+ * @file
+ * Contains farm_multifarm.module.
+ */
+
+use Drupal\Core\Entity\EntityTypeInterface;
+
+/**
+ * Implements hook_farm_entity_bundle_field_info().
+ */
+function farm_multifarm_farm_entity_bundle_field_info(EntityTypeInterface $entity_type, string $bundle) {
+  $fields = [];
+  
+  // Add a farm term reference field to records.
+  if (in_array($entity_type->id(), ['asset', 'log', 'plan', 'user'])) {
+    $options = [
+      'type' => 'entity_reference',
+      'label' => t('Farm'),
+      'description' => t('What farm is this record associated with?'),
+      'target_type' => 'taxonomy_term',
+      'target_bundle' => 'farm',
+      'multiple' => TRUE,
+      'weight' => [
+        'form' => 0,
+        'view' => -100,
+      ],
+    ];
+    $fields['farm'] = \Drupal::service('farm_field.factory')->bundleFieldDefinition($options);
+  }
+
+  return $fields;
+}
