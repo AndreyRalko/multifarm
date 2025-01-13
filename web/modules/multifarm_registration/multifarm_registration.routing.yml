@@ -1,0 +1,7 @@
+multifarm_registration.registration:
+  path: '/custom-registration'
+  defaults:
+    _controller: '\Drupal\multifarm_registration\Controller\RegistrationController::register'
+    _title: 'Custom Registration'
+  requirements:
+    _access: 'TRUE'
